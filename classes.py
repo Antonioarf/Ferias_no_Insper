@@ -96,37 +96,33 @@ class Player(pygame.sprite.Sprite):
 #quase tudo vai ser igual aqui
 class Tiro(pygame.sprite.Sprite):
     
-    # Construtor da classe.
+    
     def __init__(self, tiro_img):
-        x = 1000
-        y = 600
         
-        # Construtor da classe pai (Sprite).
         pygame.sprite.Sprite.__init__(self)
         
         # Diminuindo o tamanho da imagem.
         self.image = pygame.transform.scale(tiro_img, (60, 30))
-        
-#        # Deixando transparente.
-#        self.image.set_colorkey(BLACK)
-        
-        # Detalhes sobre o posicionamento.
         self.rect = self.image.get_rect()
+
+        # Agora vamos usar uma funcao para retirar a borda preta
+        #tente comentar essa linha para ver a mudanca
+        self.image.set_colorkey(BLACK)
         
-        # Sorteia um lugar inicial em x
+        # Qual a posicao x inicial dele
+        x = 1000
+        y = 600
         self.rect.centerx = x
-        # Sorteia um lugar inicial em y
         self.rect.bottom = y
-        # Sorteia uma velocidade inicial
+        #definindo a velocidade dele
         self.speedx = -6
         self.speedy = 0
         
-        # Melhora a colisÃ£o estabelecendo um raio de um circulo
-        self.radius = int(self.rect.width * .85 / 2)
+        # Melhora a colisaoo estabelecendo um raio de um circulo
+        self.radius = int(self.rect.width / 2.5)
         
-    # Metodo que atualiza a posiÃ§Ã£o do meteoro
     def update(self):
-        
+        #faz com que o missil volte para o comeco da tela e ataque de novo
         if self.rect.left <= 0:
             self.rect.right = WIDTH
         else:
@@ -143,62 +139,54 @@ class Tiro(pygame.sprite.Sprite):
 
 
 
-        
+#essa classe eh mais simples pois nao tem movimento
+#cria o plano de fundo
 class Back(pygame.sprite.Sprite):
     
     # Construtor da classe.
     def __init__(self,back_img):
         
-        # Construtor da classe pai (Sprite).
         pygame.sprite.Sprite.__init__(self)
 
         
         self.images = back_img
         self.currentimg = 0
+        #agora fazemos o fundo ocupar a tela toda
         self.image = pygame.transform.scale(back_img, (1000,700))
-        # Detalhes sobre o posicionamento.
         self.rect = self.image.get_rect()
 
-        
-        # Guarda o tick da primeira imagem
-        self.last_update = pygame.time.get_ticks()
-
-        # Controle de ticks de animaÃ§Ã£o: troca de imagem a cada self.frame_ticks milissegundos.
-        self.frame_ticks = 350
-    
-    # Metodo que atualiza a posiÃ§Ã£o da navinha
-    def update(self):
-        
+    #toda classe tem que ter a funcao update, mas nem sempre temos o que fazer com ela
+    #nesses casos, usamos o comando pass
+    def update(self):      
         pass
 
 
 
-# Carrega todos os assets uma vez sÃ³.
+#Agora que acabamos as classes, precisamos carregar os assets
+#os assets sao os arquivos de imagem e som que vao representar cada classe
+#pra isso importamos de novo as pastas com esses arquivos
 def load_assets(img_dir, snd_dir, fnt_dir):
     assets = {}
+    #As imagens
     assets["game_over"] = pygame.image.load(path.join(img_dir, "gameover1.png")).convert()
     assets ["background_init"] = pygame.image.load(path.join(img_dir, 'imagem 1.jpeg')).convert()
     assets["background"] = pygame.image.load(path.join(img_dir, 'imagem de fundo_ 1.jpg')).convert()
     assets["parado"] = pygame.image.load(path.join(img_dir, 'boneco_1.png')).convert()
     assets["canhao"] = pygame.image.load(path.join(img_dir, 'bala.png')).convert()
-    assets["back_anim"] = pygame.image.load(path.join(img_dir, 'imagem 1.jpeg')).convert()
-    
+    assets["back_init"] = pygame.image.load(path.join(img_dir, 'imagem 1.jpeg')).convert()
+    #Uma fonte para escrevermos na tela (por enquanto nao estamos usando)
     assets["score_font"] = pygame.font.Font(path.join(fnt_dir, "PressStart2P.ttf"), 28)
-
+    #Um primeiro arquivo de som
     assets["musica_fim"] = pygame.mixer.Sound(path.join(snd_dir, 'Game Over Sound Effects High Quality-[AudioTrimmer.com].ogg'))
 
-    
-#    back_anim = []
-#    for i in range (2):
-#        filename = 'imagem {}.jpeg'.format(i)
-#        img1 = pygame.image.load(path.join(img_dir,filename)).convert()
-#        img1 = pygame.transform.scale(img1, (1000, 700))
-#        back_anim.append(img1)
-#    assets["back_anim"]=back_anim
-        
+
+    #para o boneco, vamos criar um loop que vai trocando qual a imagem
     boneco_anim = []
+    #com sao 5 imagens, o loop vai ate 5
     for i in range(5):
+        #a funcao format(i) substitui o valor de i nas chaves
         filename = 'boneco_{}.png'.format(i)
+        #agora editamos a imagem como fizemos com todas as classes
         img0 = pygame.image.load(path.join(img_dir,filename)).convert()
         img0 = pygame.transform.scale(img0, (60, 103))        
         img0.set_colorkey(BLACK)
