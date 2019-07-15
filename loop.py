@@ -1,86 +1,89 @@
+'''
+Nesse texto, vamos criar o loop principal do jogo 
+Recomendo que leiam antes o arquvio das classes
+Com as classes ja definidas, vamos projeta-las na tela e definir as 
+regras para que o jogo vai seguir.
+'''
+
+#novamente, vamos importar os aquivos internos e bibliotecas externas que utilizaremos
 import pygame
 import random
 from os import path
 
-from configuracoes import img_dir, snd_dir,fnt_dir, WIDTH, HEIGHT, BLACK, YELLOW, WHITE, RED, FPS, QUIT, FIM, GRAVITY, GAME
+from configuracoes import img_dir, snd_dir,fnt_dir, WIDTH, HEIGHT, BLACK, YELLOW, WHITE, RED, FPS, QUIT, FIM, GRAVITY, INIT, PLAYING, DONE, score, lives, GAME
 
 from classes import Player, Tiro, load_assets, Back
 
-
+#Vamos comecar definindo a tela de inicio
 def init_screen(screen):
-    # Carrega todos os assets uma vez sÃ³ e guarda em um dicionÃ¡rio
+    # vamo carregar aqui todos os assets 
     assets = load_assets(img_dir, snd_dir, fnt_dir)
-    # VariÃ¡vel para o ajuste de velocidade
+    # criamos nosso timer do jogo
     clock = pygame.time.Clock()
 
-    # Carrega o fundo da tela inicial
-    background_init = Back(assets["back_anim"])
-    
+    # vamos criar um objeto com as caracteristicas da clase Back
+    #e com a imagem do asset "back_init
+    background_init = Back(assets["back_init"])
+    #essas duas linhas servem para projetar na tela esse objeto
     all_sprites = pygame.sprite.Group()
     all_sprites.add(background_init)
-        
+
+#Agora vamos criar a possibilidade de fechar o jogo      
     running = True
-    while running:
+    while running == True:
         
-        # Ajusta a velocidade do jogo.
+        # Ajusta a velocidade do jogo como definido no configuracoes.
         clock.tick(FPS)
         
         # Processa os eventos (mouse, teclado, botÃ£o, etc).
         for event in pygame.event.get():
-            # Verifica se foi fechado.
+            # Verifica se voce clicou no x no canto superior
             if event.type == pygame.QUIT:
+                #se sim, vamos fechar o loop
                 state = QUIT
                 running = False
-
+            #para evitar erros, colocamos duas vezes (uma clicando e outra soltando o botao)
             if event.type == pygame.KEYUP:
                 state = GAME
                 running = False
+        #se nao tivermos fechado, vamos atualizar a imagem
         all_sprites.update()
         # A cada loop, redesenha o fundo e os sprites
         all_sprites.draw(screen)
 
         # Depois de desenhar tudo, inverte o display.
         pygame.display.flip()
-
     return state
 
-
+#agora temos que fazer a funcao para o game over
 def end_game(screen,score):
+    #nosso indicador de fim de jogo sera o DONE
+    DONE = 2
+    
     assets = load_assets(img_dir, snd_dir, fnt_dir)
-
+    #agora trocamos o fundo pela imagem de fundo
     background = assets["game_over"]
     background_rect = background.get_rect() 
 
     
     running = True
+    #o unico movimento possivel eh fechar o jogo
     while running:
-        
-
         for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN or event.type == pygame.KEYUP:
-                # Dependendo da tecla, altera a velocidade.
-                if event.key == pygame.K_y:
-                    pygame.mixer.music.set_volume(0) 
-                    state = GAME
-                    running = False
-                
-                if event.key == pygame.K_n:
-                    state = QUIT
-                    running = False
+                if event.type == pygame.QUIT:
+                    state = DONE
+
                     
         screen.fill(BLACK)
         screen.blit(background, background_rect)
 
-        screen.blit(text_surface, text_rect)
-
-        
-
-
         pygame.display.flip()
     return state
-                
+ 
+
+#essa funcao vai ser bem longa, pois define a tela durante o jogo propriamente               
 def game_screen(screen):
-    # Carrega todos os assets uma vez sÃ³ e guarda em um dicionÃ¡rio
+    # Carrega todos os assets 
     assets = load_assets(img_dir, snd_dir, fnt_dir)
 
     # Variavel para o ajuste de velocidade
@@ -88,90 +91,75 @@ def game_screen(screen):
 
     # Carrega o fundo do jogo
     background = assets["background"]
-    background_rect = background.get_rect() 
- 
-  # Cria uma nave. O construtor serÃ¡ chamado automaticamente.
+    background_rect = background.get_rect()   
+    
+    # Cria o jogador, com as caracteristicas da classe e a animacao
     player = Player(assets["boneco_anim"])
     score_font = assets["score_font"]
-
-#    # Carrega a fonte para desenhar o score.
-#    score_font = assets["score_font"]
-
-    # Cria um grupo de todos os sprites e adiciona a nave.
+    #essas duas linhas servem para projetar na tela esse objeto
     all_sprites = pygame.sprite.Group()
     all_sprites.add(player)
 
-    # Cria um grupo dos meteoros
-
+    #Agora vamos criar um grupo para o canhao
     obstaculos = pygame.sprite.Group()
-    # Cria 2 meteoros e adiciona no grupo meteoros
-
-    
+    #novamente, o objeto com as caracteristia da classe
     tiro = Tiro(assets["canhao"])
+    #vamos projetar
     all_sprites.add(tiro)
     obstaculos.add(tiro)
 
 
-    lives = 3
-    PLAYING =  0
-    DONE = 2
-    score = 0
-                           
+    #enquanto estivesmos jogando, essas nao as possibilidades de botoes                      
     state = PLAYING
     while state != DONE:
     # Ajusta a velocidade do jogo.
         clock.tick(FPS)
         if state == PLAYING:
-            # Processa os eventos (mouse, teclado, botÃ£o, etc).
+            # Processa os eventos (mouse, teclado, botoes, etc).
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     state = DONE
                 
                 # Verifica se apertou alguma tecla.
                 if event.type == pygame.KEYDOWN:
-                    # Dependendo da tecla, altera a velocidade.
+                    # Dependendo da tecla, altera a velocidade do jogador (que antes era 0)
                     if event.key == pygame.K_LEFT:
-                        player.speedx = -8
+                        player.speedx = -8 #indo para tras
                     if event.key == pygame.K_RIGHT:
-                        player.speedx = 9
-#                     Se for um espaÃ§o atira!
+                        player.speedx = 8 #indo para frente
+#                     Se for um espaco, pula
                     if event.key == pygame.K_SPACE:
                         player.speedy =-30
-                        assets["pulando"].play()
-
                         
                 # Verifica se soltou alguma tecla.
                 if event.type == pygame.KEYUP:
                     # Dependendo da tecla, altera a velocidade.
                     if event.key == pygame.K_LEFT:
-                        player.speedx = 0
+                        player.speedx = 0 #para de andar
                     if event.key == pygame.K_RIGHT:
                         player.speedx = 0
                     if event.key == pygame.K_SPACE:
-                        player.speedy =50
+                        player.speedy =40 #cai
                     
         # Depois de processar os eventos.
-        # Atualiza a acao de cada sprite.
+        # Atualiza a acao de cada classe.
         all_sprites.update()
-        
+        #temos que recomecar o loop por causa da linha de cima
         if state == PLAYING:
-#                  
-            # Verifica se houve colisÃ£o entre nave e meteoro
-            if player.rect.left >= 930:
-                lives += 1
-                    
+            #agora vamos definir o hit
             hits = pygame.sprite.spritecollide(player, obstaculos, True)
             if hits:
-
-                player.rect.left = 100 
+                player.rect.left = 100 #volta para a esquerda
                 lives -=1
                 if lives > 0:
+                    #se nao tiver morto, coloca com novo missil
                     tiro = Tiro(assets["canhao"])
                     all_sprites.add(tiro)
                     obstaculos.add(tiro)
                 
-            
+             
             if lives <= 0:
+                #se tiver morto, vamos para o game over
                 player.kill()
                 pygame.mixer.music.stop()
                 assets["musica_fim"].play()
@@ -182,16 +170,7 @@ def game_screen(screen):
             screen.fill(BLACK)
             screen.blit(background, background_rect)
             all_sprites.draw(screen)
-
-
-            text_surface = score_font.render("{:0}X ".format(score), True, YELLOW)
-            text_rect = text_surface.get_rect()
-            text_rect.left = 45
-
-            text_rect.top = 51
-            text_rect.bottom = 101
-
-            screen.blit(text_surface, text_rect)   
+ 
             
 
         # Depois de desenhar tudo, inverte o display.
