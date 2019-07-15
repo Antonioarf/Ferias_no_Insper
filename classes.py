@@ -1,90 +1,99 @@
+#gameover_dir = path.join(path.dirname(__file__), 'Imagens', "gameover")
+'''
+Nesse arquivo vamos criar as classes necessarias para o jogo, comecando com 'player',
+o tiro (primeiro obstaculo) e o plano de fundo
+cada classe possui suas proprias caracteristicas definidas no formato self.____ 
+as classes a seguir estão commentadas por partes  
+'''
 import pygame
 import random
 from os import path
-
 from configuracoes import img_dir, snd_dir,fnt_dir, WIDTH, HEIGHT, BLACK, YELLOW, WHITE, RED, FPS, QUIT, FIM, GRAVITY, GAME
 
-gameover_dir = path.join(path.dirname(__file__), 'Imagens', "gameover")
-# Classe Jogador que representa a nave
+
+
+# Classe Jogador que representa o boneco
 class Player(pygame.sprite.Sprite):
     
-    # Construtor da classe.
+    # Afuncao __init__ define as caracteristicas gerais e o estado inicial (toda classe tem)
     def __init__(self,player_img):
         
-        # Construtor da classe pai (Sprite).
         pygame.sprite.Sprite.__init__(self)
         
-        
+        #agora vamos definir as caracteristicas
         self.images = player_img
         self.currentimg = 0
+        #ajustando o tamanho dela 
         self.image = pygame.transform.scale(self.images[self.currentimg], (60, 103))
 
-        # Detalhes sobre o posicionamento.
+        # estabelecemos que o espaco ocupado eh igual ao da figura (importante para o hit)
+        #ja que muitas figuras tem bordas maiores que o personagem propriamente
         self.rect = self.image.get_rect()
         
 
         
-        # Centraliza embaixo da tela.
-        self.rect.centerx = WIDTH - 800
-        self.rect.bottom = HEIGHT - 300 
+        # Qual a posicao inicial dele
+        self.rect.centerx = 200 #eixo X
+        self.rect.bottom = 400  #eixo y
         
-        # Velocidade da nave
+        # Velocidade inicial
         self.speedx = 0
         self.speedy= 0
         
-        # Melhora a colisÃ£o estabelecendo um raio de um circulo
+        # Melhora a colisao estabelecendo um raio de um circulo
         self.radius = 25
+        
         
         # Guarda o tick da primeira imagem
         self.last_update = pygame.time.get_ticks()
-
-        # Controle de ticks de animaÃ§Ã£o: troca de imagem a cada self.frame_ticks milissegundos.
+        # Controle de ticks de animacao: troca de imagem a cada self.frame_ticks milissegundos.
         self.frame_ticks = 75
     
-    # Metodo que atualiza a posiÃ§Ã£o da navinha
+    # Toda classe tem o update para saber o que fazr a cada frame
     def update(self):
+        #define o moimento (mas porenqaunto v=0)
         self.rect.x += self.speedx
         self.rect.y += self.speedy
         
-#Mantem dentro da tela
+        #Mantem dentro da tela
         if self.rect.right >= WIDTH:
             self.rect.right = 60
 
         if self.rect.left <= 0:
             self.rect.left = 0
-            
-        self.speedy += GRAVITY
-#        if self.rect.bottom <= 137:
-#            self.speedy = 10
+            #cria o piso
         if self.rect.bottom >= 635:
-            self.rect.bottom = 635
-#        if self.rect.bottom <= 500:
-#            self.speedy = 10
-            
+            self.rect.bottom = 635       
+        #mantem o personagem sempre indo para baixo   
+        self.speedy += GRAVITY
+        
+
+
+        #essa eh a parte referente a mudanca de imagem
         now = pygame.time.get_ticks()
 
-        # Verifica quantos ticks se passaram desde a ultima mudanÃ§a de frame.
+        # Verifica quantos ticks se passaram desde a ultima mudanca de frame.
         elapsed_ticks = now - self.last_update
 
-        # Se jÃ¡ estÃ¡ na hora de mudar de imagem...
+        # Se ja¡ estiver na hora de mudar de imagem...
         if elapsed_ticks > self.frame_ticks:
 
             # Marca o tick da nova imagem.
             self.last_update = now
 
-            # AvanÃ§a um quadro.
+            # Avanca um quadro.
             self.currentimg += 1
 
-            # Verifica se jÃ¡ chegou no final da animaÃ§Ã£o.
+            # Verifica se ja chegou no final da animacao.
             if self.currentimg == len(self.images):
-                # Se sim, tchau explosÃ£o!
+                # Se sim, recomeca
                 self.currentimg=0
             self.image = self.images[self.currentimg]
 
 
 
 
-
+#quase tudo vai ser igual aqui
 class Tiro(pygame.sprite.Sprite):
     
     # Construtor da classe.
@@ -142,12 +151,11 @@ class Back(pygame.sprite.Sprite):
         
         # Construtor da classe pai (Sprite).
         pygame.sprite.Sprite.__init__(self)
-        
+
         
         self.images = back_img
         self.currentimg = 0
-        self.image = pygame.transform.scale(self.images[self.currentimg], (1000, 700))
-        
+        self.image = pygame.transform.scale(back_img, (1000,700))
         # Detalhes sobre o posicionamento.
         self.rect = self.image.get_rect()
 
@@ -161,24 +169,7 @@ class Back(pygame.sprite.Sprite):
     # Metodo que atualiza a posiÃ§Ã£o da navinha
     def update(self):
         
-        now = pygame.time.get_ticks()
-
-        # Verifica quantos ticks se passaram desde a ultima mudanÃ§a de frame.
-        elapsed_ticks = now - self.last_update
-
-        # Se jÃ¡ estÃ¡ na hora de mudar de imagem...
-        if elapsed_ticks > self.frame_ticks:
- 
-            # Marca o tick da nova imagem.
-            self.last_update = now
-
-            # AvanÃ§a um quadro.
-            self.currentimg += 1
-            # Verifica se jÃ¡ chegou no final da animaÃ§Ã£o.
-            if self.currentimg == len(self.images):
-                # Se sim, tchau explosÃ£o!
-                self.currentimg=0 
-            self.image = self.images[self.currentimg]
+        pass
 
 
 
@@ -197,13 +188,13 @@ def load_assets(img_dir, snd_dir, fnt_dir):
     assets["musica_fim"] = pygame.mixer.Sound(path.join(snd_dir, 'Game Over Sound Effects High Quality-[AudioTrimmer.com].ogg'))
 
     
-    back_anim = []
-    for i in range (2):
-        filename = 'imagem {}.jpeg'.format(i)
-        img1 = pygame.image.load(path.join(img_dir,filename)).convert()
-        img1 = pygame.transform.scale(img1, (1000, 700))
-        back_anim.append(img1)
-    assets["back_anim"]=back_anim
+#    back_anim = []
+#    for i in range (2):
+#        filename = 'imagem {}.jpeg'.format(i)
+#        img1 = pygame.image.load(path.join(img_dir,filename)).convert()
+#        img1 = pygame.transform.scale(img1, (1000, 700))
+#        back_anim.append(img1)
+#    assets["back_anim"]=back_anim
         
     boneco_anim = []
     for i in range(5):
