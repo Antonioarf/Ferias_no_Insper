@@ -4,7 +4,7 @@ from os import path
 
 from configuracoes import img_dir, snd_dir,fnt_dir, WIDTH, HEIGHT, BLACK, YELLOW, WHITE, RED, FPS, QUIT, FIM, GRAVITY, GAME
 
-from classes import Player, Back, load_assets,Tiro
+from classes import Player, Tiro, load_assets, Back
 
 
 def init_screen(screen):
@@ -14,19 +14,13 @@ def init_screen(screen):
     clock = pygame.time.Clock()
 
     # Carrega o fundo da tela inicial
-    background_init = Back(assets["background_init"])
+    background_init = Back(assets["back_anim"])
     
     all_sprites = pygame.sprite.Group()
     all_sprites.add(background_init)
-    
-
-
-
-
-
-    
+        
     running = True
-    while running == True:
+    while running:
         
         # Ajusta a velocidade do jogo.
         clock.tick(FPS)
@@ -55,34 +49,12 @@ def end_game(screen,score):
     assets = load_assets(img_dir, snd_dir, fnt_dir)
 
     background = assets["game_over"]
-    score_font = assets["score_font"]
     background_rect = background.get_rect() 
-    score_font = assets["score_font"]
-    
-    
-#    text_surface = score_font.render("X ", True, BLUE)
-#    text_rect = text_surface.get_rect()
-#    text_rect.left = 40
-#    #posicoes do texto
-#    text_rect.top = 25
-#    text_rect.bottom = 70
-#
-#    screen.blit(text_surface, text_rect)  
-    
 
     
     running = True
-    while running == True:
-        text_surface = score_font.render("Your score:", True, BLUE)
-        text_rect = text_surface.get_rect()
-        text_rect.left = WIDTH/2
-        text_rect.top = 225
-        screen.blit(text_surface, text_rect)  
+    while running:
         
-        text_surface = score_font.render("{:0}".format(score), True, YELLOW)
-        text_rect = text_surface.get_rect()
-        text_rect.left = WIDTH/2
-        text_rect.top = 195
 
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN or event.type == pygame.KEYUP:
@@ -111,41 +83,39 @@ def game_screen(screen):
     # Carrega todos os assets uma vez sÃ³ e guarda em um dicionÃ¡rio
     assets = load_assets(img_dir, snd_dir, fnt_dir)
 
-    # VariÃ¡vel para o ajuste de velocidade
+    # Variavel para o ajuste de velocidade
     clock = pygame.time.Clock()
 
     # Carrega o fundo do jogo
     background = assets["background"]
     background_rect = background.get_rect() 
-    
-    #Criao personagem
+ 
+  # Cria uma nave. O construtor serÃ¡ chamado automaticamente.
     player = Player(assets["boneco_anim"])
     score_font = assets["score_font"]
 
 #    # Carrega a fonte para desenhar o score.
 #    score_font = assets["score_font"]
 
-    # Cria um grupo de todos os sprites e adiciona.
+    # Cria um grupo de todos os sprites e adiciona a nave.
     all_sprites = pygame.sprite.Group()
     all_sprites.add(player)
 
     # Cria um grupo dos meteoros
 
-    obstaculo = pygame.sprite.Group()
+    obstaculos = pygame.sprite.Group()
+    # Cria 2 meteoros e adiciona no grupo meteoros
 
-    #Agora o mesmo para o tiro
-                    
-    bala = Tiro(assets["tiro"])
-    all_sprites.add(bala)
-    obstaculo.add(bala)
+    
+    tiro = Tiro(assets["canhao"])
+    all_sprites.add(tiro)
+    obstaculos.add(tiro)
 
 
     lives = 3
     PLAYING =  0
     DONE = 2
-    contador = 0
-        
-    
+    score = 0
                            
     state = PLAYING
     while state != DONE:
@@ -185,15 +155,21 @@ def game_screen(screen):
         all_sprites.update()
         
         if state == PLAYING:
-            hits = pygame.sprite.spritecollide(player, obstaculo, True)
+#                  
+            # Verifica se houve colisÃ£o entre nave e meteoro
+            if player.rect.left >= 930:
+                lives += 1
+                    
+            hits = pygame.sprite.spritecollide(player, obstaculos, True)
             if hits:
+
                 player.rect.left = 100 
-                lives -=1 
-                life.empty()
-                bala = Tiro(assets["tiro"])
-                all_sprites.add(bala)
-                obstaculo.add(bala)
-                life.draw(screen)
+                lives -=1
+                if lives > 0:
+                    tiro = Tiro(assets["canhao"])
+                    all_sprites.add(tiro)
+                    obstaculos.add(tiro)
+                
             
             if lives <= 0:
                 player.kill()
@@ -206,7 +182,6 @@ def game_screen(screen):
             screen.fill(BLACK)
             screen.blit(background, background_rect)
             all_sprites.draw(screen)
-            life.draw(screen)
 
 
             text_surface = score_font.render("{:0}X ".format(score), True, YELLOW)
@@ -221,4 +196,4 @@ def game_screen(screen):
 
         # Depois de desenhar tudo, inverte o display.
         pygame.display.flip()
-    return QUIT, tesouros
+    return QUIT
