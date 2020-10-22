@@ -12,10 +12,10 @@ from os import path
 
 #aqui importamos os dados e funcoes que criamos em nossos outros arquivos
 #fique atento, se mudar o nome de alguma funcao, eh preciso atualizar aqui
-from configuracoes import WIDTH, HEIGHT, INIT, GAME, QUIT, FIM, GRAVITY
-from telas import init_screen
-from telas import game_screen
-from telas import end_game
+# from configuracoes import WIDTH, HEIGHT, INIT, GAME, QUIT, FIM, GRAVITY
+# from telas import init_screen
+# from telas import game_screen
+# from telas import end_game
 
 
 # Agora, vamos iniciar o Pygame e abrir a tela
